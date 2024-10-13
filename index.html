@@ -3,94 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple DEX Interface</title>
+    <title>Uniswap Style DEX</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #0d0d0d;
+            color: white;
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 450px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: #1c1c1c;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #ff007a;
+        }
+        .input-group {
+            margin-bottom: 20px;
         }
         label {
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
+            font-size: 14px;
+            color: #a1a1a1;
         }
-        input, select, button {
+        input, select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            border: none;
+            border-radius: 8px;
+            background-color: #2d2d2d;
+            color: white;
+            margin-top: 8px;
+            box-sizing: border-box;
         }
         button {
-            background-color: #007bff;
-            color: #fff;
+            width: 100%;
+            padding: 12px;
+            background-color: #ff007a;
+            border: none;
+            border-radius: 8px;
+            color: white;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 20px;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #e6006e;
+        }
+        .swap-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .wallet-btn {
+            background-color: #1e90ff;
+            margin-bottom: 15px;
+        }
+        .wallet-btn:hover {
+            background-color: #1c7ccc;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Simple DEX</h1>
+        <h1>Uniswap DEX</h1>
 
-        <label for="wallet">Wallet Address</label>
-        <input type="text" id="wallet" placeholder="Enter your wallet address">
+        <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
 
-        <label for="tokenFrom">From Token</label>
-        <select id="tokenFrom">
-            <option value="ETH">ETH</option>
-            <option value="USDT">USDT</option>
-            <option value="DAI">DAI</option>
-        </select>
+        <div class="input-group">
+            <label for="tokenFrom">From</label>
+            <div style="display: flex;">
+                <input type="number" id="amountFrom" placeholder="0.0" style="flex: 1;">
+                <select id="tokenFrom" style="width: 120px; margin-left: 10px;">
+                    <option value="ETH">ETH</option>
+                    <option value="USDT">USDT</option>
+                    <option value="DAI">DAI</option>
+                </select>
+            </div>
+        </div>
 
-        <label for="amountFrom">Amount</label>
-        <input type="number" id="amountFrom" placeholder="Enter amount to swap">
-
-        <label for="tokenTo">To Token</label>
-        <select id="tokenTo">
-            <option value="USDT">USDT</option>
-            <option value="DAI">DAI</option>
-            <option value="ETH">ETH</option>
-        </select>
+        <div class="input-group">
+            <label for="tokenTo">To</label>
+            <div style="display: flex;">
+                <input type="number" id="amountTo" placeholder="0.0" style="flex: 1;" disabled>
+                <select id="tokenTo" style="width: 120px; margin-left: 10px;">
+                    <option value="USDT">USDT</option>
+                    <option value="DAI">DAI</option>
+                    <option value="ETH">ETH</option>
+                </select>
+            </div>
+        </div>
 
         <button id="swapButton">Swap</button>
 
-        <div id="status"></div>
+        <div class="swap-info" id="swapStatus"></div>
     </div>
 
     <script>
+        // Placeholder for actual swap logic
         document.getElementById('swapButton').addEventListener('click', function() {
-            const wallet = document.getElementById('wallet').value;
             const tokenFrom = document.getElementById('tokenFrom').value;
-            const amountFrom = document.getElementById('amountFrom').value;
             const tokenTo = document.getElementById('tokenTo').value;
-
-            if (!wallet || !amountFrom) {
-                alert('Please enter all fields.');
+            const amountFrom = document.getElementById('amountFrom').value;
+            
+            if (!amountFrom) {
+                alert("Please enter the amount to swap.");
                 return;
             }
 
-            document.getElementById('status').innerText = `Swapping ${amountFrom} ${tokenFrom} to ${tokenTo} for wallet ${wallet}...`;
-            
-            // Integrate swap logic here (e.g., call smart contract or API)
+            // Swap logic placeholder
+            document.getElementById('swapStatus').innerText = `Swapping ${amountFrom} ${tokenFrom} for ${tokenTo}...`;
+
+            // Here you would interact with smart contract or DEX API
         });
+
+        // Connect to Metamask wallet
+        const connectWalletButton = document.getElementById('connectWallet');
+        connectWalletButton.addEventListener('click', async () => {
+            if (window.ethereum) {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    connectWalletButton.innerText = `Wallet: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                    document.getElementById('swapStatus').innerText = "Wallet connected";
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('swapStatus').innerText = "Wallet connection failed.";
+                }
+            } else {
+                alert('Metamask not found. Please install it.');
+            }
+        });
+
+        // Update amountTo based on some swap rate logic
+        document.getElementById('tokenFrom').addEventListener('change', updateSwapAmount);
+        document.getElementById('tokenTo').addEventListener('change', updateSwapAmount);
+        document.getElementById('amountFrom').addEventListener('input', updateSwapAmount);
+
+        function updateSwapAmount() {
+            const amountFrom = document.getElementById('amountFrom').value;
+            const tokenFrom = document.getElementById('tokenFrom').value;
+            const tokenTo = document.getElementById('tokenTo').value;
+
+            // For simplicity, we just use a dummy rate conversion here.
+            const rate = getSwapRate(tokenFrom, tokenTo);
+            const amountTo = amountFrom * rate;
+
+            document.getElementById('amountTo').value = amountTo ? amountTo.toFixed(6) : '';
+        }
+
+        // Dummy function to get token swap rate
+        function getSwapRate(tokenFrom, tokenTo) {
+            // In a real app, you would fetch rates from an API or smart contract
+            if (tokenFrom === 'ETH' && tokenTo === 'USDT') return 1800; // Example rate
+            if (tokenFrom === 'USDT' && tokenTo === 'ETH') return 1 / 1800;
+            if (tokenFrom === 'ETH' && tokenTo === 'DAI') return 1800;
+            if (tokenFrom === 'DAI' && tokenTo === 'ETH') return 1 / 1800;
+            return 1; // Default rate
+        }
     </script>
 
 </body>
