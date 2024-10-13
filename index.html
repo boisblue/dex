@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniswap V3 DEX</title>
+    <title>OFT Transfer - LayerZero</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #0b0b0b;
-            color: white;
+            background-color: #0c0c0c;
+            color: #fff;
             padding: 20px;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #1b1b1b;
+            background-color: #1e1e1e;
             padding: 20px;
             border-radius: 16px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
         }
         h1 {
             text-align: center;
-            color: #ff007a;
+            color: #4ade80;
         }
         .input-group {
             margin-bottom: 20px;
@@ -35,14 +35,14 @@
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background-color: #252525;
+            background-color: #282828;
             color: white;
             margin-top: 8px;
         }
         button {
             width: 100%;
             padding: 14px;
-            background-color: #ff007a;
+            background-color: #4ade80;
             border: none;
             border-radius: 8px;
             color: white;
@@ -51,21 +51,7 @@
             margin-top: 20px;
         }
         button:hover {
-            background-color: #e6006e;
-        }
-        .liquidity-range {
-            display: flex;
-            justify-content: space-between;
-        }
-        .range-input {
-            width: 48%;
-        }
-        .fee-tier {
-            display: flex;
-            justify-content: space-between;
-        }
-        .fee-tier input {
-            margin-right: 10px;
+            background-color: #3ebd73;
         }
         .wallet-btn {
             background-color: #1e90ff;
@@ -83,91 +69,78 @@
 <body>
 
     <div class="container">
-        <h1>Uniswap V3</h1>
+        <h1>LayerZero OFT Transfer</h1>
 
+        <!-- Wallet Connect -->
         <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
 
-        <!-- Swap Tokens -->
+        <!-- Token Amount -->
         <div class="input-group">
-            <label for="tokenFrom">From</label>
-            <input type="number" id="amountFrom" placeholder="0.0">
-            <select id="tokenFrom">
-                <option value="ETH">ETH</option>
-                <option value="USDT">USDT</option>
-                <option value="DAI">DAI</option>
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" placeholder="0.0">
+        </div>
+
+        <!-- From Chain -->
+        <div class="input-group">
+            <label for="fromChain">From Chain</label>
+            <select id="fromChain">
+                <option value="Ethereum">Ethereum</option>
+                <option value="Avalanche">Avalanche</option>
+                <option value="BSC">BSC</option>
+                <option value="Polygon">Polygon</option>
             </select>
         </div>
 
+        <!-- To Chain -->
         <div class="input-group">
-            <label for="tokenTo">To</label>
-            <input type="number" id="amountTo" placeholder="0.0" disabled>
-            <select id="tokenTo">
-                <option value="USDT">USDT</option>
-                <option value="DAI">DAI</option>
-                <option value="ETH">ETH</option>
+            <label for="toChain">To Chain</label>
+            <select id="toChain">
+                <option value="Avalanche">Avalanche</option>
+                <option value="Ethereum">Ethereum</option>
+                <option value="BSC">BSC</option>
+                <option value="Polygon">Polygon</option>
             </select>
         </div>
 
-        <!-- Liquidity Range -->
-        <h3>Set Liquidity Range</h3>
-        <div class="liquidity-range">
-            <input type="number" id="minPrice" placeholder="Min Price" class="range-input">
-            <input type="number" id="maxPrice" placeholder="Max Price" class="range-input">
-        </div>
+        <!-- Execute Transfer -->
+        <button id="transferButton">Transfer OFT</button>
 
-        <!-- Fee Tier Selection -->
-        <h3>Select Fee Tier</h3>
-        <div class="fee-tier">
-            <label><input type="radio" name="feeTier" value="0.05"> 0.05%</label>
-            <label><input type="radio" name="feeTier" value="0.3" checked> 0.3%</label>
-            <label><input type="radio" name="feeTier" value="1"> 1%</label>
-        </div>
-
-        <button id="swapButton">Swap</button>
-
-        <div class="swap-info" id="swapStatus"></div>
+        <!-- Status -->
+        <div class="swap-info" id="transferStatus"></div>
     </div>
 
     <script>
-        // Placeholder for actual swap logic
-        document.getElementById('swapButton').addEventListener('click', function() {
-            const tokenFrom = document.getElementById('tokenFrom').value;
-            const tokenTo = document.getElementById('tokenTo').value;
-            const amountFrom = document.getElementById('amountFrom').value;
-            const minPrice = document.getElementById('minPrice').value;
-            const maxPrice = document.getElementById('maxPrice').value;
-            const feeTier = document.querySelector('input[name="feeTier"]:checked').value;
-            
-            if (!amountFrom) {
-                alert("Please enter the amount to swap.");
-                return;
-            }
-
-            if (!minPrice || !maxPrice) {
-                alert("Please set the liquidity range.");
-                return;
-            }
-
-            document.getElementById('swapStatus').innerText = `Swapping ${amountFrom} ${tokenFrom} for ${tokenTo} in the price range of ${minPrice} - ${maxPrice} with a fee tier of ${feeTier}%...`;
-
-            // Logic to interact with smart contracts will be added here
-        });
-
-        // Connect to Metamask wallet
+        // Connect to Metamask
         const connectWalletButton = document.getElementById('connectWallet');
         connectWalletButton.addEventListener('click', async () => {
             if (window.ethereum) {
                 try {
                     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
                     connectWalletButton.innerText = `Wallet: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                    document.getElementById('swapStatus').innerText = "Wallet connected";
+                    document.getElementById('transferStatus').innerText = "Wallet connected";
                 } catch (error) {
                     console.error(error);
-                    document.getElementById('swapStatus').innerText = "Wallet connection failed.";
+                    document.getElementById('transferStatus').innerText = "Wallet connection failed.";
                 }
             } else {
                 alert('Metamask not found. Please install it.');
             }
+        });
+
+        // Placeholder for actual transfer logic
+        document.getElementById('transferButton').addEventListener('click', function() {
+            const amount = document.getElementById('amount').value;
+            const fromChain = document.getElementById('fromChain').value;
+            const toChain = document.getElementById('toChain').value;
+            
+            if (!amount || fromChain === toChain) {
+                alert("Please enter a valid amount and select different chains.");
+                return;
+            }
+
+            document.getElementById('transferStatus').innerText = `Transferring ${amount} OFT from ${fromChain} to ${toChain}...`;
+
+            // Logic to interact with LayerZero and OFT contract will be added here
         });
     </script>
 
