@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniswap Style DEX</title>
+    <title>Uniswap V3 DEX</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #0d0d0d;
+            background-color: #0b0b0b;
             color: white;
             padding: 20px;
         }
         .container {
-            max-width: 450px;
+            max-width: 600px;
             margin: 0 auto;
-            background-color: #1c1c1c;
+            background-color: #1b1b1b;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
         }
         h1 {
             text-align: center;
@@ -28,21 +28,20 @@
         }
         label {
             font-size: 14px;
-            color: #a1a1a1;
+            color: #a9a9a9;
         }
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
-            background-color: #2d2d2d;
+            background-color: #252525;
             color: white;
             margin-top: 8px;
-            box-sizing: border-box;
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: #ff007a;
             border: none;
             border-radius: 8px;
@@ -54,9 +53,19 @@
         button:hover {
             background-color: #e6006e;
         }
-        .swap-info {
-            text-align: center;
-            margin-top: 10px;
+        .liquidity-range {
+            display: flex;
+            justify-content: space-between;
+        }
+        .range-input {
+            width: 48%;
+        }
+        .fee-tier {
+            display: flex;
+            justify-content: space-between;
+        }
+        .fee-tier input {
+            margin-right: 10px;
         }
         .wallet-btn {
             background-color: #1e90ff;
@@ -65,37 +74,53 @@
         .wallet-btn:hover {
             background-color: #1c7ccc;
         }
+        .swap-info {
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Uniswap DEX</h1>
+        <h1>Uniswap V3</h1>
 
         <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
 
+        <!-- Swap Tokens -->
         <div class="input-group">
             <label for="tokenFrom">From</label>
-            <div style="display: flex;">
-                <input type="number" id="amountFrom" placeholder="0.0" style="flex: 1;">
-                <select id="tokenFrom" style="width: 120px; margin-left: 10px;">
-                    <option value="ETH">ETH</option>
-                    <option value="USDT">USDT</option>
-                    <option value="DAI">DAI</option>
-                </select>
-            </div>
+            <input type="number" id="amountFrom" placeholder="0.0">
+            <select id="tokenFrom">
+                <option value="ETH">ETH</option>
+                <option value="USDT">USDT</option>
+                <option value="DAI">DAI</option>
+            </select>
         </div>
 
         <div class="input-group">
             <label for="tokenTo">To</label>
-            <div style="display: flex;">
-                <input type="number" id="amountTo" placeholder="0.0" style="flex: 1;" disabled>
-                <select id="tokenTo" style="width: 120px; margin-left: 10px;">
-                    <option value="USDT">USDT</option>
-                    <option value="DAI">DAI</option>
-                    <option value="ETH">ETH</option>
-                </select>
-            </div>
+            <input type="number" id="amountTo" placeholder="0.0" disabled>
+            <select id="tokenTo">
+                <option value="USDT">USDT</option>
+                <option value="DAI">DAI</option>
+                <option value="ETH">ETH</option>
+            </select>
+        </div>
+
+        <!-- Liquidity Range -->
+        <h3>Set Liquidity Range</h3>
+        <div class="liquidity-range">
+            <input type="number" id="minPrice" placeholder="Min Price" class="range-input">
+            <input type="number" id="maxPrice" placeholder="Max Price" class="range-input">
+        </div>
+
+        <!-- Fee Tier Selection -->
+        <h3>Select Fee Tier</h3>
+        <div class="fee-tier">
+            <label><input type="radio" name="feeTier" value="0.05"> 0.05%</label>
+            <label><input type="radio" name="feeTier" value="0.3" checked> 0.3%</label>
+            <label><input type="radio" name="feeTier" value="1"> 1%</label>
         </div>
 
         <button id="swapButton">Swap</button>
@@ -109,16 +134,23 @@
             const tokenFrom = document.getElementById('tokenFrom').value;
             const tokenTo = document.getElementById('tokenTo').value;
             const amountFrom = document.getElementById('amountFrom').value;
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            const feeTier = document.querySelector('input[name="feeTier"]:checked').value;
             
             if (!amountFrom) {
                 alert("Please enter the amount to swap.");
                 return;
             }
 
-            // Swap logic placeholder
-            document.getElementById('swapStatus').innerText = `Swapping ${amountFrom} ${tokenFrom} for ${tokenTo}...`;
+            if (!minPrice || !maxPrice) {
+                alert("Please set the liquidity range.");
+                return;
+            }
 
-            // Here you would interact with smart contract or DEX API
+            document.getElementById('swapStatus').innerText = `Swapping ${amountFrom} ${tokenFrom} for ${tokenTo} in the price range of ${minPrice} - ${maxPrice} with a fee tier of ${feeTier}%...`;
+
+            // Logic to interact with smart contracts will be added here
         });
 
         // Connect to Metamask wallet
@@ -137,33 +169,6 @@
                 alert('Metamask not found. Please install it.');
             }
         });
-
-        // Update amountTo based on some swap rate logic
-        document.getElementById('tokenFrom').addEventListener('change', updateSwapAmount);
-        document.getElementById('tokenTo').addEventListener('change', updateSwapAmount);
-        document.getElementById('amountFrom').addEventListener('input', updateSwapAmount);
-
-        function updateSwapAmount() {
-            const amountFrom = document.getElementById('amountFrom').value;
-            const tokenFrom = document.getElementById('tokenFrom').value;
-            const tokenTo = document.getElementById('tokenTo').value;
-
-            // For simplicity, we just use a dummy rate conversion here.
-            const rate = getSwapRate(tokenFrom, tokenTo);
-            const amountTo = amountFrom * rate;
-
-            document.getElementById('amountTo').value = amountTo ? amountTo.toFixed(6) : '';
-        }
-
-        // Dummy function to get token swap rate
-        function getSwapRate(tokenFrom, tokenTo) {
-            // In a real app, you would fetch rates from an API or smart contract
-            if (tokenFrom === 'ETH' && tokenTo === 'USDT') return 1800; // Example rate
-            if (tokenFrom === 'USDT' && tokenTo === 'ETH') return 1 / 1800;
-            if (tokenFrom === 'ETH' && tokenTo === 'DAI') return 1800;
-            if (tokenFrom === 'DAI' && tokenTo === 'ETH') return 1 / 1800;
-            return 1; // Default rate
-        }
     </script>
 
 </body>
